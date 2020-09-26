@@ -1,6 +1,11 @@
-#include <iostream>
+#include "Client.h"
 
-int main( )
+#include <string>
+
+int main( int argc, char **argv )
 {
-	std::cout << "Hello BSG!!!";
+	Client c( argc,*argv );
+	c.run( );
+
+	return 0;
 }

@@ -31,7 +31,7 @@ void Logger::splog( LogLevel MsgLevel, string ObjectName, string Message )
 	{
 		char stime[ 10 ];
 		time_t timet;
-		struct tm * data;
+		struct tm* data;
 
 		time( &timet );
 		data = localtime( &timet );
@@ -40,7 +40,7 @@ void Logger::splog( LogLevel MsgLevel, string ObjectName, string Message )
 		output += stime;
 	}
 
-	output += ObjectName + " " + getPrefix( MsgLevel ) + ": " + Message + "\n";
+	output += getPrefix( MsgLevel ) + " " + ObjectName + ": " + Message + "\n";
 	cout << output;
 
 	if( _isLogToFile && ObjectName != "Logger" )
@@ -84,7 +84,7 @@ void Logger::init( )
 	char stime[ 10 ];
 	{
 		time_t timet;
-		struct tm * data;
+		struct tm* data;
 
 		time( &timet );
 		data = localtime( &timet );
@@ -93,7 +93,7 @@ void Logger::init( )
 
 	CurrentFilePath += stime;
 
-	for( int i = 1;; i++ )
+	for( size_t i = 1;; i++ )
 	{
 		string sufix = to_string( i );
 
@@ -125,7 +125,7 @@ void Logger::LogTime( bool is )
 	_isLogTime = is;
 }
 
-Logger & Logger::getInstance( std::string Name )
+Logger& Logger::getInstance( std::string Name )
 {
 	static Logger instance( Name );
 	return instance;
