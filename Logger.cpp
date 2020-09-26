@@ -14,16 +14,11 @@ bool Logger::_isLogTime = true;
 
 void Logger::splog( LogLevel MsgLevel, string ObjectName, string Message )
 {
-	if( _LogLevel == LogLevel::NO )
+	if( MsgLevel == LogLevel::NO )
 		return;
 
-	if( _LogLevel != LogLevel::DEBUG )
-	{
-		if( MsgLevel == LogLevel::ERROR && _LogLevel != LogLevel::ERROR )
-			return;
-		if( MsgLevel == LogLevel::INFO && _LogLevel != LogLevel::INFO )
-			return;
-	}
+	if( _LogLevel < MsgLevel )
+		return;
 
 	string output = "";
 
@@ -41,7 +36,10 @@ void Logger::splog( LogLevel MsgLevel, string ObjectName, string Message )
 	}
 
 	output += getPrefix( MsgLevel ) + " " + ObjectName + ": " + Message + "\n";
+
+	SetConsoleTextAttribute( GetStdHandle( STD_OUTPUT_HANDLE ), getColor( MsgLevel ) );
 	cout << output;
+	SetConsoleTextAttribute( GetStdHandle( STD_OUTPUT_HANDLE ), 7 );
 
 	if( _isLogToFile && ObjectName != "Logger" )
 		logToFile( output );
@@ -65,14 +63,44 @@ string Logger::getPrefix( LogLevel MsgLevel )
 {
 	switch( MsgLevel )
 	{
+		case LogLevel::NO:
+			return "";
+			break;
 		case LogLevel::ERROR:
 			return "[ERROR]";
+			break;
+		case LogLevel::WARNING:
+			return "[WARNING]";
 			break;
 		case LogLevel::INFO:
 			return "[INFO]";
 			break;
 		case LogLevel::DEBUG:
 			return "[DEBUG]";
+			break;
+		default:
+			break;
+	}
+}
+
+int Logger::getColor( LogLevel MsgLevel )
+{
+	switch( MsgLevel )
+	{
+		case LogLevel::NO:
+			return 0;
+			break;
+		case LogLevel::ERROR:
+			return 12;
+			break;
+		case LogLevel::WARNING:
+			return 14;
+			break;
+		case LogLevel::INFO:
+			return 7;
+			break;
+		case LogLevel::DEBUG:
+			return 3;
 			break;
 		default:
 			break;

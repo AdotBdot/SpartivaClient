@@ -7,6 +7,7 @@ Client::Client( int mainArgC, std::string mainArgs )
 
 Client::~Client( )
 {
+	delete Lgr;
 }
 
 void Client::init( )
