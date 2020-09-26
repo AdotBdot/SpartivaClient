@@ -22,7 +22,7 @@ void Client::init( )
 
 
 
-	Lgr->log( LogLevel::INFO, "Initializiaed" );
+	Lgr->log( LogLevel::INFO, "Initialized" );
 }
 
 void Client::run( )
