@@ -9,18 +9,19 @@ void Client::receive( )
 	for( ;; )
 	{
 		sf::Packet ReceivedData;
-		if( Socket->receive( ReceivedData ) )
+		if( Socket->receive( ReceivedData ) == sf::Socket::Done )
 		{
 			std::cout << "Received: " << ReceivedData.getDataSize( ) << " bytes" << std::endl;
 		}
 	}
 }
 
-void Client::connect( sf::IpAddress ServerIp, unsigned short ServerPort )
+void Client::connect( sf::IpAddress ServerIp, int ServerPort )
 {
-	if( Socket->connect( ServerIp, ServerPort ) == sf::Socket::Done )
+	sf::TcpSocket::Status Status = Socket->connect( ServerIp, ServerPort );
+	if( Status == sf::Socket::Done )
 	{
-		Lgr->log( LogLevel::INFO, "Connected with" + ServerIp.toString( ) + ":" + std::to_string( ServerPort ) );
+		Lgr->log( LogLevel::INFO, "Connected with: " + ServerIp.toString( ) + ":" + std::to_string( ServerPort ) );
 	}
 	else
 	{
@@ -44,6 +45,8 @@ Client::~Client( )
 {
 	if( Socket != nullptr )
 		delete Socket;
+	if( ReceiveThread != nullptr )
+		delete ReceiveThread;
 	if( Lgr != nullptr )
 		delete Lgr;
 }
@@ -69,7 +72,7 @@ void Client::run( )
 	std::cout << "Enter Server IP: ";
 	std::cin >> ServerIp;
 
-	short ServerPort;
+	int ServerPort;
 	std::cout << "Enter Server port: ";
 	std::cin >> ServerPort;
 
@@ -83,7 +86,7 @@ void Client::run( )
 		std::cin >> txt;
 
 		sf::Packet packet;
-		packet << static_cast< UINT8 >( PacketType::Message ) << txt;
+		packet << static_cast< UINT8 >( PacketType::Message )<<(UINT8)PacketReceiver::All << txt;
 
 		Socket->send( packet );
 	}

@@ -12,7 +12,7 @@ class Client
 	sf::TcpSocket* Socket;
 	sf::Thread* ReceiveThread;
 
-	void connect( sf::IpAddress ServerIp, unsigned short ServerPort );
+	void connect( sf::IpAddress ServerIp, int ServerPort );
 	void disconnect( );
 	void receive( );
 
