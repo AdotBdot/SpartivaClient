@@ -4,6 +4,8 @@
 #include <SFML/Network.hpp>
 
 #include "Logger.h"
+#include "VoiceRecorder.h"
+#include "SoundPlayer.h"
 #include "Devs.hpp"
 
 class Client
@@ -11,8 +13,10 @@ class Client
 	Logger* Lgr;
 	sf::TcpSocket* Socket;
 	sf::Thread* ReceiveThread;
+	VoiceRecorder* Recorder;
+	SoundPlayer* Player;
 
-	void connect( sf::IpAddress ServerIp, int ServerPort );
+	void connect( sf::IpAddress ServerIp, unsigned int ServerPort );
 	void disconnect( );
 	void receive( );
 

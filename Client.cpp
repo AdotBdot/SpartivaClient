@@ -4,21 +4,51 @@
 
 #include "Devs.hpp"
 
-void Client::receive( )
+Client::Client( int mainArgC, std::string mainArgs )
 {
-	for( ;; )
-	{
-		sf::Packet ReceivedData;
-		if( Socket->receive( ReceivedData ) == sf::Socket::Done )
-		{
-			std::cout << "Received: " << ReceivedData.getDataSize( ) << " bytes" << std::endl;
-		}
-	}
+	init( );
 }
 
-void Client::connect( sf::IpAddress ServerIp, int ServerPort )
+Client::~Client( )
 {
-	sf::TcpSocket::Status Status = Socket->connect( ServerIp, ServerPort );
+	if( Socket != nullptr )
+		delete Socket;
+	if( ReceiveThread != nullptr )
+		delete ReceiveThread;
+	if( Recorder != nullptr )
+		delete Recorder;
+	if( Player != nullptr )
+		delete Player;
+	if( Lgr != nullptr )
+		delete Lgr;
+}
+
+void Client::init( )
+{
+	//Logger init
+	Lgr = new Logger( "MainThread" );
+	Lgr->log( LogLevel::INFO, "Initializiation..." );
+
+	//Client Socket init
+	Socket = new sf::TcpSocket( );
+	ReceiveThread = new sf::Thread( &Client::receive, this );
+
+	//Voice Recorder
+	if( sf::SoundRecorder::isAvailable( ) )
+		Recorder = new VoiceRecorder( Socket );
+	else
+		Lgr->log( LogLevel::ERROR, "Audio capture is not avaible on your system!" );
+
+	Player = new SoundPlayer( );
+	Player->setVolume( 100 );
+	Player->play( );
+
+	Lgr->log( LogLevel::INFO, "Initialized" );
+}
+
+void Client::connect( sf::IpAddress ServerIp, unsigned int ServerPort )
+{
+	auto Status = Socket->connect( ServerIp, ServerPort );
 	if( Status == sf::Socket::Done )
 	{
 		Lgr->log( LogLevel::INFO, "Connected with: " + ServerIp.toString( ) + ":" + std::to_string( ServerPort ) );
@@ -36,34 +66,35 @@ void Client::disconnect( )
 	Lgr->log( LogLevel::INFO, "Disconnected" );
 }
 
-Client::Client( int mainArgC, std::string mainArgs )
+void Client::receive( )
 {
-	init( );
-}
+	for( ;; )
+	{
+		sf::Packet ReceivedData;
+		if( Socket->receive( ReceivedData ) == sf::Socket::Done )
+		{
+			std::cout << "Received: " << ReceivedData.getDataSize( ) << " bytes" << std::endl;
+			UINT8 type;
+			ReceivedData >> type;
 
-Client::~Client( )
-{
-	if( Socket != nullptr )
-		delete Socket;
-	if( ReceiveThread != nullptr )
-		delete ReceiveThread;
-	if( Lgr != nullptr )
-		delete Lgr;
-}
+			switch( ( PacketType ) type )
+			{
+				case PacketType::Message:
+				{
 
-void Client::init( )
-{
-	//Logger init
-
-	Lgr = new Logger( "MainThread" );
-	Lgr->log( LogLevel::INFO, "Initializiation..." );
-
-	//Client Socket init
-	Socket = new sf::TcpSocket( );
-
-	ReceiveThread = new sf::Thread( &Client::receive, this );
-
-	Lgr->log( LogLevel::INFO, "Initialized" );
+				}
+				case PacketType::VoiceStart:
+				{
+					const sf::Int16* samples = reinterpret_cast< const sf::Int16* >( ( const char* ) ReceivedData.getData( ) + 1 );
+					std::size_t sampleCount = ( ReceivedData.getDataSize( ) - 1 ) / sizeof( sf::Int16 );
+					{
+						sf::Lock lock( *Player->getMutex( ) );
+						std::copy( samples, samples + sampleCount, std::back_inserter( *Player->getSamplesPtr( ) ) );
+					}
+				}
+			}
+		}
+	}
 }
 
 void Client::run( )
@@ -72,7 +103,7 @@ void Client::run( )
 	std::cout << "Enter Server IP: ";
 	std::cin >> ServerIp;
 
-	int ServerPort;
+	unsigned int ServerPort;
 	std::cout << "Enter Server port: ";
 	std::cin >> ServerPort;
 
@@ -80,14 +111,18 @@ void Client::run( )
 
 	ReceiveThread->launch( );
 
+	//Recorder->start( );
+
 	for( ;; )
 	{
 		std::string txt;
-		std::cin >> txt;
+		getline( std::cin, txt );
 
 		sf::Packet packet;
-		packet << ( UINT8 ) PacketType::Message << ( UINT8 ) PacketReceiver::All << txt;
+		packet << ( INT8 ) PacketType::Message << ( INT8 ) PacketReceiver::All << txt;
 
-		Socket->send( packet );
+		sf::TcpSocket::Status Status = Socket->send( packet );
+		if( Status == sf::TcpSocket::Status::Done )
+			std::cout << "Packet sent" << std::endl;
 	}
 }
