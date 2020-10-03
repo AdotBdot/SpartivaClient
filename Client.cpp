@@ -86,7 +86,7 @@ void Client::run( )
 		std::cin >> txt;
 
 		sf::Packet packet;
-		packet << static_cast< UINT8 >( PacketType::Message )<<(UINT8)PacketReceiver::All << txt;
+		packet << ( UINT8 ) PacketType::Message << ( UINT8 ) PacketReceiver::All << txt;
 
 		Socket->send( packet );
 	}
