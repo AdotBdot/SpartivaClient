@@ -18,10 +18,13 @@ void Client::receive( )
 
 void Client::connect( sf::IpAddress ServerIp, unsigned short ServerPort )
 {
-	if( Socket->connect( ServerIp, ServerPort ) != sf::Socket::Done )
+	if( Socket->connect( ServerIp, ServerPort ) == sf::Socket::Done )
+	{
+		Lgr->log( LogLevel::INFO, "Connected with" + ServerIp.toString( ) + ":" + std::to_string( ServerPort ) );
+	}
+	else
 	{
 		Lgr->log( LogLevel::INFO, "Can't connect with: " + ServerIp.toString( ) + ":" + std::to_string( ServerPort ) );
-		return;
 	}
 }
 
@@ -29,6 +32,7 @@ void Client::connect( sf::IpAddress ServerIp, unsigned short ServerPort )
 void Client::disconnect( )
 {
 	Socket->disconnect( );
+	Lgr->log( LogLevel::INFO, "Disconnected" );
 }
 
 Client::Client( int mainArgC, std::string mainArgs )

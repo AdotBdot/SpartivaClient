@@ -10,3 +10,11 @@ enum class PacketType
 	Command,
 	Disconnect
 };
+
+enum class PacketReceiver
+{
+	Server,
+	All,
+	One,
+	Me
+};
