@@ -41,12 +41,12 @@ void Client::init( )
 
 	Player = new SoundPlayer( );
 	Player->setVolume( 100 );
-/*	Player->play( );
+	/*	Player->play( );
 
-	while (Player->getStatus() != sf::SoundStream::Stopped)
-	{
-		sf::sleep(sf::milliseconds(10));
-	}*/
+		while (Player->getStatus() != sf::SoundStream::Stopped)
+		{
+			sf::sleep(sf::milliseconds(10));
+		}*/
 
 	Lgr->log( LogLevel::INFO, "Initialized" );
 }
@@ -71,16 +71,16 @@ void Client::disconnect( )
 	Lgr->log( LogLevel::INFO, "Disconnected" );
 }
 
-void Client::receive( )
+void Client::receive( )//works in other thread
 {
-	for( ;; )
+	while( true )
 	{
 		sf::Packet ReceivedData;
-		if( Socket->receive( ReceivedData ) == sf::Socket::Done )
+		sf::TcpSocket::Status Status = Socket->receive( ReceivedData );
+		if( Status == sf::Socket::Done )
 		{
-			std::cout << "Received: " << ReceivedData.getDataSize( ) << " bytes" << std::endl;
-			INT8 type;
-			ReceivedData >> type;
+			sf::Uint8 type,trash;
+			ReceivedData >> type >>trash;
 
 			switch( ( PacketType ) type )
 			{
@@ -88,21 +88,22 @@ void Client::receive( )
 				{
 					std::string message;
 					ReceivedData >> message;
-					std::cout << message;
-
+					std::cout << message << std::endl;
 				}
 				case PacketType::VoiceStart:
 				{
-					const INT16* samples = reinterpret_cast< const INT16* >( ( const char* ) ReceivedData.getData( ) + 1 );
-					std::size_t sampleCount = ( ReceivedData.getDataSize( ) - 1 ) / sizeof( INT16 );
+					const sf::Int16* samples = reinterpret_cast< const sf::Int16* >( ( const char* ) ReceivedData.getData( ) + 1 );
+					std::size_t sampleCount = ( ReceivedData.getDataSize( ) - 1 ) / sizeof( sf::Int16 );
 					{
 						sf::Lock lock( *Player->getMutex( ) );
 						std::copy( samples, samples + sampleCount, std::back_inserter( *Player->getSamplesPtr( ) ) );
 					}
 				}
 				default:
-					Lgr->log( LogLevel::ERROR, "Invalid packet! ID: " + ( int ) type );
-					break;
+				{
+					Lgr->log( LogLevel::ERROR, " Invalid packet! ID: " + type );
+				}
+
 			}
 			ReceivedData.clear( );
 		}
@@ -125,13 +126,13 @@ void Client::run( )
 
 	//Recorder->start( );
 
-	for( ;; )
+	while( true )
 	{
 		std::string txt;
 		getline( std::cin, txt );
 
 		sf::Packet packet;
-		packet << ( INT8 ) PacketType::Message << ( INT8 ) PacketReceiver::All << txt;
+		packet << ( sf::Uint8 ) PacketType::Message << ( sf::Uint8 ) PacketReceiver::All << txt;
 
 		sf::TcpSocket::Status Status = Socket->send( packet );
 		if( Status == sf::TcpSocket::Status::Done )

@@ -18,7 +18,7 @@ class Client
 
 	void connect( sf::IpAddress ServerIp, unsigned int ServerPort );
 	void disconnect( );
-	void receive( );
+	void receive( );//works in ReceiveThread
 
 public:
 	Client( int mainArgC, std::string mainArgs );

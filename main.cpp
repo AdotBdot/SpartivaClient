@@ -1,10 +1,7 @@
 #include "Client.h"
 
-#include <string>
-
 #include "Logger.h"
 
-// TODO: Wygrzmocic mefia w dupe
 int main( int argc, char **argv )
 {
 	Logger::init( );
