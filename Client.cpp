@@ -112,12 +112,7 @@ void Client::run( )
 	std::cout << "Enter Server IP: ";
 	std::cin >> ServerIp;
 
-	unsigned int ServerPort;
-	std::cout << "Enter Server port: ";
-	std::cin >> ServerPort;
-	std::cin.clear( ); 
-
-	connect( ServerIp, ServerPort );
+	connect( ServerIp, 50001 );
 
 	ReceiveThread->launch( );
 
