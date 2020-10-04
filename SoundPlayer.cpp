@@ -33,7 +33,7 @@ SoundPlayer::SoundPlayer( )
 	initialize( 1, 44100 );
 }
 
-std::vector<sf::Int16>* SoundPlayer::getSamplesPtr( )
+std::vector<INT16>* SoundPlayer::getSamplesPtr( )
 {
 	return &this->samples;
 }

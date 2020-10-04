@@ -1,5 +1,6 @@
 #pragma once
 
+#include <basetsd.h>
 #include <SFML/Audio.hpp>
 #include <SFML/Network.hpp>
 
