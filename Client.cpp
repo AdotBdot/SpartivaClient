@@ -1,6 +1,7 @@
 #include "Client.h"
 
 #include <iostream>
+#include <string>
 
 #include "Devs.hpp"
 
@@ -114,6 +115,7 @@ void Client::run( )
 	unsigned int ServerPort;
 	std::cout << "Enter Server port: ";
 	std::cin >> ServerPort;
+	std::cin.clear( ); 
 
 	connect( ServerIp, ServerPort );
 
@@ -123,11 +125,11 @@ void Client::run( )
 
 	while( true )
 	{
-		std::string txt;
-		getline( std::cin, txt );
+		char input[ 150 ];
+		std::cin.getline( input,150 );
 
 		sf::Packet packet;
-		packet << static_cast< sf::Uint8 >( PacketType::Message ) << static_cast< sf::Uint8 >( PacketReceiver::All ) << txt;
+		packet << static_cast< sf::Uint8 >( PacketType::Message ) << static_cast< sf::Uint8 >( PacketReceiver::All ) << input;
 
 		sf::TcpSocket::Status Status = Socket->send( packet );
 		if( Status == sf::TcpSocket::Status::Done )
