@@ -23,9 +23,9 @@ class Client
 	void receive( );//works in ReceiveThread
 
 public:
-	Client( int mainArgC, std::string mainArgs );
+	Client( int mainArgC, char** mainArgv );
 	~Client( );
 
-	void init( );
+	void init( std::vector<std::string> CMDArguments );
 	void run( );
 };

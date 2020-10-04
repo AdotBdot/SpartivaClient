@@ -9,7 +9,7 @@ int main( int argc, char **argv )
 	Logger::LogToFile( false );
 	Logger::setLogLevel( LogLevel::DEBUG );
 
-	Client c( argc, *argv );
+	Client c( argc, argv );
 	c.run( );
 
 	return 0;

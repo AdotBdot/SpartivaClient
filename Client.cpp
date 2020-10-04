@@ -2,12 +2,19 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "Devs.hpp"
 
-Client::Client( int mainArgC, std::string mainArgs )
+Client::Client( int mainArgC, char** mainArgv )
 {
-	init( );
+	std::vector<std::string> argList;
+	if( mainArgC > 1 )
+	{
+		for( int i = 0; i < mainArgC; i++ )
+			argList.push_back( mainArgv[ i ] );
+	}
+	init( argList );
 }
 
 Client::~Client( )
@@ -24,7 +31,7 @@ Client::~Client( )
 		delete Lgr;
 }
 
-void Client::init( )
+void Client::init( std::vector<std::string> CMDArguments )
 {
 	//Logger init
 	Lgr = new Logger( "MainThread" );
