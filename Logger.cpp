@@ -4,15 +4,13 @@
 #include <fstream>
 #include <time.h>
 
-using namespace std;
-
 //STATIC
-string Logger::CurrentFilePath = "logs/";
+std::string Logger::CurrentFilePath = "logs/";
 LogLevel Logger::_LogLevel = LogLevel::INFO;
 bool Logger::_isLogToFile = false;
 bool Logger::_isLogTime = true;
 
-void Logger::splog( LogLevel MsgLevel, string ObjectName, string Message )
+void Logger::splog( LogLevel MsgLevel, std::string ObjectName, std::string Message )
 {
 	if( MsgLevel == LogLevel::NO )
 		return;
@@ -20,7 +18,7 @@ void Logger::splog( LogLevel MsgLevel, string ObjectName, string Message )
 	if( _LogLevel < MsgLevel )
 		return;
 
-	string output = "";
+	std::string output = "";
 
 	if( _isLogTime )
 	{
@@ -38,17 +36,17 @@ void Logger::splog( LogLevel MsgLevel, string ObjectName, string Message )
 	output += getPrefix( MsgLevel ) + " " + ObjectName + ": " + Message + "\n";
 
 	SetConsoleTextAttribute( GetStdHandle( STD_OUTPUT_HANDLE ), getColor( MsgLevel ) );
-	cout << output;
+	std::cout << output;
 	SetConsoleTextAttribute( GetStdHandle( STD_OUTPUT_HANDLE ), 7 );
 
 	if( _isLogToFile && ObjectName != "Logger" )
 		logToFile( output );
 }
 
-void Logger::logToFile( string Message )
+void Logger::logToFile( std::string Message )
 {
-	ofstream file;
-	file.open( CurrentFilePath.c_str( ), ios::app );
+	std::ofstream file;
+	file.open( CurrentFilePath.c_str( ), std::ios::app );
 	if( !file.good( ) )
 	{
 		splog( LogLevel::INFO, "Logger", "Something gone wrong with file" );
@@ -59,7 +57,7 @@ void Logger::logToFile( string Message )
 	file.close( );
 }
 
-string Logger::getPrefix( LogLevel MsgLevel )
+std::string Logger::getPrefix( LogLevel MsgLevel )
 {
 	switch( MsgLevel )
 	{
@@ -123,7 +121,7 @@ void Logger::init( )
 
 	for( size_t i = 1;; i++ )
 	{
-		string sufix = to_string( i );
+		std::string sufix = std::to_string( i );
 
 		CurrentFilePath += sufix + ".txt";
 
@@ -160,12 +158,12 @@ Logger& Logger::getInstance( std::string Name )
 }
 
 //OBJECT
-Logger::Logger( string ObjectName )
+Logger::Logger( std::string ObjectName )
 {
 	ObjName = ObjectName;
 }
 
-void Logger::log( LogLevel MsgLevel, string Message )
+void Logger::log( LogLevel MsgLevel, std::string Message )
 {
 	splog( MsgLevel, ObjName, Message );
 }

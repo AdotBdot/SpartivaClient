@@ -81,10 +81,10 @@ void Client::receive( )//works in other thread
 		SMutex.unlock( );
 		if( Status == sf::Socket::Done )
 		{
-			sf::Uint8 type,trash;
-			ReceivedData >> type >>trash;
+			sf::Uint8 type, trash;
+			ReceivedData >> type >> trash;
 
-			switch( ( PacketType ) type )
+			switch( ( PacketType ) type ) 
 			{
 				case PacketType::Message:
 				{
@@ -94,11 +94,12 @@ void Client::receive( )//works in other thread
 				}
 				case PacketType::VoiceStart:
 				{
-					const sf::Int16* samples = reinterpret_cast< const sf::Int16* >( ( const char* ) ReceivedData.getData( ) + 1 );
-					std::size_t sampleCount = ( ReceivedData.getDataSize( ) - 1 ) / sizeof( sf::Int16 );
+					const sf::Int16* samples = reinterpret_cast< const sf::Int16* >( static_cast< const char* >( ReceivedData.getData( ) ) + 1 );
+					size_t sampleCount = ( ReceivedData.getDataSize( ) - 1 ) / sizeof( sf::Int16 );
 					{
-						sf::Lock lock( *Player->getMutex( ) );
+						Player->getMutex( )->lock( );
 						std::copy( samples, samples + sampleCount, std::back_inserter( *Player->getSamplesPtr( ) ) );
+						Player->getMutex( )->unlock( );
 					}
 				}
 				default:
@@ -138,8 +139,8 @@ void Client::run( )
 
 		SMutex.lock( );
 		sf::TcpSocket::Status Status = Socket->send( packet );
+		SMutex.unlock( );
 		if( Status == sf::TcpSocket::Status::Done )
 			std::cout << "Packet sent" << std::endl;
-		SMutex.unlock( );
 	}
 }
