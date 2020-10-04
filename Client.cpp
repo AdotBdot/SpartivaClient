@@ -41,7 +41,6 @@ void Client::init( )
 
 	Player = new SoundPlayer( );
 	Player->setVolume( 100 );
-	Player->play( );
 
 	Lgr->log( LogLevel::INFO, "Initialized" );
 }
@@ -81,6 +80,9 @@ void Client::receive( )
 			{
 				case PacketType::Message:
 				{
+					std::string message;
+					ReceivedData >> message;
+					std::cout << message;
 
 				}
 				case PacketType::VoiceStart:
@@ -92,7 +94,11 @@ void Client::receive( )
 						std::copy( samples, samples + sampleCount, std::back_inserter( *Player->getSamplesPtr( ) ) );
 					}
 				}
+				default:
+					Lgr->log( LogLevel::ERROR, "Invalid packet! ID: " + ( int ) type );
+					break;
 			}
+			ReceivedData.clear( );
 		}
 	}
 }
