@@ -41,7 +41,11 @@ void Client::init( )
 
 	Player = new SoundPlayer( );
 	Player->setVolume( 100 );
-
+	Player->play( );
+	while (Player->getStatus() != sf::SoundStream::Stopped)
+	{
+		sf::sleep(sf::milliseconds(10));
+	}
 	Lgr->log( LogLevel::INFO, "Initialized" );
 }
 
