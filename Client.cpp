@@ -76,7 +76,9 @@ void Client::receive( )//works in other thread
 	while( true )
 	{
 		sf::Packet ReceivedData;
+		SMutex.lock( );
 		sf::TcpSocket::Status Status = Socket->receive( ReceivedData );
+		SMutex.unlock( );
 		if( Status == sf::Socket::Done )
 		{
 			sf::Uint8 type,trash;
@@ -134,8 +136,10 @@ void Client::run( )
 		sf::Packet packet;
 		packet << ( sf::Uint8 ) PacketType::Message << ( sf::Uint8 ) PacketReceiver::All << txt;
 
+		SMutex.lock( );
 		sf::TcpSocket::Status Status = Socket->send( packet );
 		if( Status == sf::TcpSocket::Status::Done )
 			std::cout << "Packet sent" << std::endl;
+		SMutex.unlock( );
 	}
 }
