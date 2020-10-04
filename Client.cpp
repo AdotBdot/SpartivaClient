@@ -76,14 +76,12 @@ void Client::receive( )//works in other thread
 	while( true )
 	{
 		sf::Packet ReceivedData;
-		SMutex.lock( );
 		sf::TcpSocket::Status Status = Socket->receive( ReceivedData );
-		SMutex.unlock( );
 		if( Status == sf::Socket::Done )
 		{
 			sf::Uint8 type, trash;
 			ReceivedData >> type >> trash;
-
+			ReceivedData.
 			switch( static_cast< PacketType >( type ) )
 			{
 				case PacketType::Message:
@@ -102,13 +100,8 @@ void Client::receive( )//works in other thread
 						Player->getMutex( )->unlock( );
 					}
 				}
-				default:
-				{
-					Lgr->log( LogLevel::ERROR, " Invalid packet! ID: " + type );
-				}
 
 			}
-			ReceivedData.clear( );
 		}
 	}
 }
@@ -137,9 +130,7 @@ void Client::run( )
 		sf::Packet packet;
 		packet << static_cast< sf::Uint8 >( PacketType::Message ) << static_cast< sf::Uint8 >( PacketReceiver::All ) << txt;
 
-		SMutex.lock( );
 		sf::TcpSocket::Status Status = Socket->send( packet );
-		SMutex.unlock( );
 		if( Status == sf::TcpSocket::Status::Done )
 			std::cout << "Packet sent" << std::endl;
 	}
