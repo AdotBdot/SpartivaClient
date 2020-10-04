@@ -90,7 +90,7 @@ void Client::receive( )//works in other thread
 				{
 					std::string message;
 					ReceivedData >> message;
-					std::cout << message << std::endl;
+					std::cout << "Received message: " << message << std::endl;
 				}
 				case PacketType::VoiceStart:
 				{
