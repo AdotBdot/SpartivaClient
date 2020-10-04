@@ -2,7 +2,7 @@
 
 bool SoundPlayer::onGetData( sf::SoundStream::Chunk& data )
 {
-	while( ( offset >= samples.size( ) ) )
+	while( offset >= samples.size( ) )
 		sf::sleep( sf::milliseconds( 10 ) );
 
 	{

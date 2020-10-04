@@ -1,6 +1,6 @@
 #include "VoiceRecorder.h"
 
-#include <iostream>
+#include <basetsd.h>
 
 #include "Devs.hpp"
 
@@ -23,7 +23,6 @@ bool VoiceRecorder::onProcessSamples( const INT16* samples, std::size_t sampleCo
 
 	packet.append( samples, sampleCount * sizeof( INT16 ) );
 
-	std::cout << "sent" << std::endl;
 	return Socket->send( packet ) == sf::Socket::Done;
 }
 
@@ -32,5 +31,4 @@ void VoiceRecorder::onStop( )
 	sf::Packet packet;
 	packet << ( INT8 ) PacketType::VoiceEnd;
 	Socket->send( packet );
-	std::cout << "sent"<<std::endl;
 }
