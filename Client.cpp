@@ -84,7 +84,7 @@ void Client::receive( )//works in other thread
 			sf::Uint8 type, trash;
 			ReceivedData >> type >> trash;
 
-			switch( ( PacketType ) type ) 
+			switch( static_cast< PacketType >( type ) )
 			{
 				case PacketType::Message:
 				{
@@ -135,7 +135,7 @@ void Client::run( )
 		getline( std::cin, txt );
 
 		sf::Packet packet;
-		packet << ( sf::Uint8 ) PacketType::Message << ( sf::Uint8 ) PacketReceiver::All << txt;
+		packet << static_cast< sf::Uint8 >( PacketType::Message ) << static_cast< sf::Uint8 >( PacketReceiver::All ) << txt;
 
 		SMutex.lock( );
 		sf::TcpSocket::Status Status = Socket->send( packet );
