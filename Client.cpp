@@ -81,7 +81,6 @@ void Client::receive( )//works in other thread
 		{
 			sf::Uint8 type, trash;
 			ReceivedData >> type >> trash;
-			ReceivedData.
 			switch( static_cast< PacketType >( type ) )
 			{
 				case PacketType::Message:
