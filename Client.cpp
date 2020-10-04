@@ -79,7 +79,7 @@ void Client::receive( )
 		if( Socket->receive( ReceivedData ) == sf::Socket::Done )
 		{
 			std::cout << "Received: " << ReceivedData.getDataSize( ) << " bytes" << std::endl;
-			UINT8 type;
+			INT8 type;
 			ReceivedData >> type;
 
 			switch( ( PacketType ) type )
@@ -93,8 +93,8 @@ void Client::receive( )
 				}
 				case PacketType::VoiceStart:
 				{
-					const sf::Int16* samples = reinterpret_cast< const sf::Int16* >( ( const char* ) ReceivedData.getData( ) + 1 );
-					std::size_t sampleCount = ( ReceivedData.getDataSize( ) - 1 ) / sizeof( sf::Int16 );
+					const INT16* samples = reinterpret_cast< const INT16* >( ( const char* ) ReceivedData.getData( ) + 1 );
+					std::size_t sampleCount = ( ReceivedData.getDataSize( ) - 1 ) / sizeof( INT16 );
 					{
 						sf::Lock lock( *Player->getMutex( ) );
 						std::copy( samples, samples + sampleCount, std::back_inserter( *Player->getSamplesPtr( ) ) );
