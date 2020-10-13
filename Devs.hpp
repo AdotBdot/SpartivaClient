@@ -2,9 +2,13 @@
 
 enum class PacketType
 {
+	ClientsInfo,
 	Message,
 	VoiceStart,
-	VoiceEnd
+	VoiceEnd,
+	Whisper,
+	Command,
+	Disconect
 };
 
 enum class PacketRecipient
