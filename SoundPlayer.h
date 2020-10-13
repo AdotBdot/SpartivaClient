@@ -1,7 +1,6 @@
 #pragma once
 
-#include<vector>
-#include <basetsd.h>
+#include <vector>
 #include <SFML/Audio.hpp>
 
 class SoundPlayer
@@ -9,8 +8,8 @@ class SoundPlayer
 {
 	size_t offset;
 	sf::Mutex m_mutex;
-	std::vector<INT16> samples;
-	std::vector<INT16> tempBuffer;
+	std::vector<sf::Int16> samples;
+	std::vector<sf::Int16> tempBuffer;
 
 	virtual bool onGetData( sf::SoundStream::Chunk& data );
 	virtual void onSeek( sf::Time timeOffset );
@@ -18,6 +17,5 @@ class SoundPlayer
 public:
 	SoundPlayer( );
 
-	std::vector<sf::Int16>* getSamplesPtr( );
-	sf::Mutex* getMutex( );
+	void copy( const sf::Int16* _Samples, size_t _SampleCount );
 };

@@ -1,5 +1,18 @@
 #include "SoundPlayer.h"
 
+SoundPlayer::SoundPlayer( )
+	:offset( 0 )
+{
+	initialize( 1, 8000 );
+}
+
+void SoundPlayer::copy( const sf::Int16* _Samples, size_t _SampleCount )
+{
+	m_mutex.lock( );
+	std::copy( _Samples, _Samples + _SampleCount, std::back_inserter( samples ) );
+	m_mutex.unlock( );
+}
+
 bool SoundPlayer::onGetData( sf::SoundStream::Chunk& data )
 {
 	while( offset >= samples.size( ) )
@@ -25,20 +38,4 @@ bool SoundPlayer::onGetData( sf::SoundStream::Chunk& data )
 void SoundPlayer::onSeek( sf::Time timeOffset )
 {
 	offset = timeOffset.asMilliseconds( ) * getSampleRate( ) * getChannelCount( ) / 1000;
-}
-
-SoundPlayer::SoundPlayer( )
-	:offset( 0 )
-{
-	initialize( 1, 44100 );
-}
-
-std::vector<INT16>* SoundPlayer::getSamplesPtr( )
-{
-	return &this->samples;
-}
-
-sf::Mutex* SoundPlayer::getMutex( )
-{
-	return &this->m_mutex;
 }

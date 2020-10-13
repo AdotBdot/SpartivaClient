@@ -16,10 +16,7 @@ class Client
 	VoiceRecorder* Recorder;
 	SoundPlayer* Player;
 
-	sf::Mutex SMutex;
-
 	void connect( sf::IpAddress ServerIp, unsigned int ServerPort );
-	void disconnect( );
 	void receive( );//works in ReceiveThread
 
 public:

@@ -14,6 +14,8 @@ Client::Client( int mainArgC, char** mainArgv )
 		for( int i = 0; i < mainArgC; i++ )
 			argList.push_back( mainArgv[ i ] );
 	}
+	for( int i = 0; i < argList.size( ); i++ )
+		std::cout << argList[ i ] << std::endl;
 	init( argList );
 }
 
@@ -35,79 +37,70 @@ void Client::init( std::vector<std::string> CMDArguments )
 {
 	//Logger init
 	Lgr = new Logger( "MainThread" );
-	Lgr->log( LogLevel::INFO, "Initializiation..." );
+	Lgr->log( LogLevel::DEBUG, "Initializiation..." );
 
 	//Client Socket init
 	Socket = new sf::TcpSocket( );
 	ReceiveThread = new sf::Thread( &Client::receive, this );
 
-	//Voice Recorder
-	if( sf::SoundRecorder::isAvailable( ) )
-		Recorder = new VoiceRecorder( Socket );
-	else
-		Lgr->log( LogLevel::ERROR, "Audio capture is not avaible on your system!" );
-
+	//init Voice and Sound
+	Recorder = new VoiceRecorder( Socket );
 	Player = new SoundPlayer( );
+
 	Player->setVolume( 100 );
-	/*	Player->play( );
 
-		while (Player->getStatus() != sf::SoundStream::Stopped)
-		{
-			sf::sleep(sf::milliseconds(10));
-		}*/
-
-	Lgr->log( LogLevel::INFO, "Initialized" );
+	Lgr->log( LogLevel::DEBUG, "Initialized!" );
 }
 
 void Client::connect( sf::IpAddress ServerIp, unsigned int ServerPort )
 {
-	auto Status = Socket->connect( ServerIp, ServerPort );
+	sf::Socket::Status Status = Socket->connect( ServerIp, ServerPort );
 	if( Status == sf::Socket::Done )
 	{
 		Lgr->log( LogLevel::INFO, "Connected with: " + ServerIp.toString( ) + ":" + std::to_string( ServerPort ) );
 	}
 	else
 	{
-		Lgr->log( LogLevel::INFO, "Can't connect with: " + ServerIp.toString( ) + ":" + std::to_string( ServerPort ) );
+		Lgr->log( LogLevel::ERROR, "Can't connect with: " + ServerIp.toString( ) + ":" + std::to_string( ServerPort ) );
 	}
 }
 
-// TODO: add sending disconnection packet
-void Client::disconnect( )
-{
-	Socket->disconnect( );
-	Lgr->log( LogLevel::INFO, "Disconnected" );
-}
-
-void Client::receive( )//works in other thread
+//works in other thread
+void Client::receive( )
 {
 	while( true )
 	{
 		sf::Packet ReceivedData;
-		sf::TcpSocket::Status Status = Socket->receive( ReceivedData );
-		if( Status == sf::Socket::Done )
+		sf::Socket::Status Status = Socket->receive( ReceivedData );
+		switch( Status )
 		{
-			sf::Uint8 type, trash;
-			ReceivedData >> type >> trash;
-			switch( static_cast< PacketType >( type ) )
+			case sf::Socket::Done:
 			{
-				case PacketType::Message:
+				sf::Int8 PType, trash;
+				ReceivedData >> PType >>trash;
+				switch( static_cast< PacketType >( PType ) )
 				{
-					std::string message;
-					ReceivedData >> message;
-					std::cout << "Received message: " << message << std::endl;
-				}
-				case PacketType::VoiceStart:
-				{
-					const sf::Int16* samples = reinterpret_cast< const sf::Int16* >( static_cast< const char* >( ReceivedData.getData( ) ) + 1 );
-					size_t sampleCount = ( ReceivedData.getDataSize( ) - 1 ) / sizeof( sf::Int16 );
+					case PacketType::Message:
 					{
-						Player->getMutex( )->lock( );
-						std::copy( samples, samples + sampleCount, std::back_inserter( *Player->getSamplesPtr( ) ) );
-						Player->getMutex( )->unlock( );
+						std::string text;
+						ReceivedData >> text;
+						std::cout << "Message: " << text << std::endl;
+					}
+					case PacketType::VoiceStart:
+					{
+						const sf::Int16* samples = reinterpret_cast< const sf::Int16* >( static_cast< const char* >( ReceivedData.getData( ) ) + 1 );
+						size_t sampleCount = ( ReceivedData.getDataSize( ) - 1 ) / sizeof( sf::Int16 );
+						Player->copy( samples, sampleCount );
+					}
+					case PacketType::VoiceEnd:
+					{
+
 					}
 				}
-
+			}
+			case sf::Socket::Error:
+			{
+				Lgr->log( LogLevel::ERROR, "Error" );
 			}
 		}
 	}
@@ -116,7 +109,7 @@ void Client::receive( )//works in other thread
 void Client::run( )
 {
 	sf::IpAddress ServerIp;
-	std::cout << "Enter Server IP: ";
+	std::cout << "Enter ServerIp: ";
 	std::cin >> ServerIp;
 
 	connect( ServerIp, 50001 );
@@ -124,17 +117,19 @@ void Client::run( )
 	ReceiveThread->launch( );
 
 	//Recorder->start( );
+	//Player->play( );
 
 	while( true )
 	{
 		char input[ 150 ];
-		std::cin.getline( input,150 );
+		//std::cin.getline( input, 150 );
+		std::cin >> input;
 
 		sf::Packet packet;
-		packet << static_cast< sf::Uint8 >( PacketType::Message ) << static_cast< sf::Uint8 >( PacketReceiver::All ) << input;
+		packet << static_cast< sf::Int8 >( PacketType::Message ) << static_cast< sf::Int8 >( PacketRecipient::All )<< input;
 
-		sf::TcpSocket::Status Status = Socket->send( packet );
-		if( Status == sf::TcpSocket::Status::Done )
-			std::cout << "Packet sent" << std::endl;
+		sf::Socket::Status Status = Socket->send( packet );
+		if( Status == sf::Socket::Status::Done )
+			Lgr->log( LogLevel::DEBUG, "Packet sent" );
 	}
 }
