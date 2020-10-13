@@ -86,22 +86,27 @@ void Client::receive( )
 						ReceivedData >> text;
 						std::cout << "Message: " << text << std::endl;
 					}
+					break;
 					case PacketType::VoiceStart:
 					{
 						const sf::Int16* samples = reinterpret_cast< const sf::Int16* >( static_cast< const char* >( ReceivedData.getData( ) ) + 1 );
 						size_t sampleCount = ( ReceivedData.getDataSize( ) - 1 ) / sizeof( sf::Int16 );
 						Player->copy( samples, sampleCount );
 					}
+					break;
 					case PacketType::VoiceEnd:
 					{
 
 					}
+					break;
 				}
 			}
+			break;
 			case sf::Socket::Error:
 			{
 				Lgr->log( LogLevel::ERROR, "Error" );
 			}
+			break;
 		}
 	}
 }
@@ -126,7 +131,7 @@ void Client::run( )
 		std::cin >> input;
 
 		sf::Packet packet;
-		packet << static_cast< sf::Int8 >( PacketType::Message ) << static_cast< sf::Int8 >( PacketRecipient::All )<< input;
+		packet << static_cast< sf::Int8 >( PacketType::Message ) << /*static_cast< sf::Int8 >( PacketRecipient::All )<<*/ input;
 
 		sf::Socket::Status Status = Socket->send( packet );
 		if( Status == sf::Socket::Status::Done )
