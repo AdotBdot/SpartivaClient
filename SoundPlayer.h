@@ -15,7 +15,7 @@ class SoundPlayer
 	virtual void onSeek( sf::Time timeOffset );
 
 public:
-	SoundPlayer( );
+	SoundPlayer();
 
 	void copy( const sf::Int16* _Samples, size_t _SampleCount );
 };

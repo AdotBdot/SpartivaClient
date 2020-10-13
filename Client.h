@@ -17,7 +17,7 @@ class Client
 	SoundPlayer* Player;
 
 	void connect( sf::IpAddress ServerIp, unsigned int ServerPort );
-	void receive( );//works in ReceiveThread
+	void receive( );
 
 public:
 	Client( int mainArgC, char** mainArgv );
